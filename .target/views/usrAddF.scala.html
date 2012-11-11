@@ -1,0 +1,20 @@
+@(msg: String, usrAddF: Form[EditFrmDat])
+@import helper._
+@import helper.twitterBootstrap._
+
+@main(Messages("user.create")) {
+    
+
+    <h2>@Messages("user.create")</h2>
+    @msg
+    @form(routes.Application.createUser()) {
+        @inputText(usrAddF("foreName"),'_label -> Messages("user.forename")) 
+        @inputText(usrAddF("surName"), '_label ->Messages("user.surname")) 
+        @inputText(usrAddF("mail"),'_label ->Messages("user.mail")) 
+        @inputPassword(usrAddF("pw"),'_label ->Messages("user.pw")) 
+        @inputPassword(usrAddF("pwn1"),'_label ->Messages("user.pwagain"))  
+        <input type="submit" value="@Messages("user.create")">
+        
+    }
+    
+}

@@ -1,0 +1,52 @@
+@(msg: String, mboxes: List[MBox], optlst: List[String] ,mboxAddF: Form[MbFrmDat])
+@import helper._
+@import helper.twitterBootstrap._
+
+@main(Messages("mailbox.title")){
+    <h1>@Messages("mailbox.title")</h1>
+        <table class="table table-hover">
+    <tr><th>@Messages("mailbox.address")</th>
+    <th>@Messages("mailbox.duration")</th><th>@Messages("mailbox.valid")</th>
+    <th>@Messages("mailbox.renew")</th><th>@Messages("mailbox.delete")</td><th>@Messages("mailbox.edit")</th></tr>
+    @for(mbox <- mboxes){
+    @if(mbox.isExpired()){
+    <tr class="error">}else{<tr class="success">}
+    
+    	<td>@mbox.getAdress()&#064;@mbox.getDomain()</td>
+    	<td>@mbox.getTSAsString()</td>
+    	@if(mbox.isActive()){
+    			<td>@Messages("msg.yes")</td>
+    			 <td>@form(routes.BoxHandler.expireBox(mbox.getId())) {
+                    <input type="submit" class= "btn" value="@Messages("mailbox.deactivate")">
+                }</td>
+    	}else{
+    		<td>@Messages("msg.no")</td>
+    	    	<td>@form(routes.BoxHandler.expireBox(mbox.getId())) {
+                    <input type="submit" class= "btn" value="@Messages("mailbox.activate")">
+                }</td>
+    	
+    	}
+    	<td> @form(routes.BoxHandler.deleteBox(mbox.getId())) {
+                    <input type="submit" class= "btn" value="@Messages("mailbox.delete")">
+                }</td>
+        <td> @form(routes.BoxHandler.showEditBox(mbox.getId())) {
+             <input type="submit" class= "btn" value="@Messages("mailbox.edit")">
+         }
+         </td>
+    </tr>   } 
+    </table>
+
+    <h2>@Messages("mailbox.new")</h2>
+    @msg   <br/>
+     @form(routes.BoxHandler.addBox()) {
+        @inputText(mboxAddF("address"),'_label ->Messages("mailbox.address")) 
+		@select(mboxAddF("domain"), options(optlst), '_label ->Messages("mailbox.domain"))
+        @inputText(mboxAddF("duration"),'_label ->Messages("mailbox.duration")) 
+        <input type="submit" class= "btn" value="@Messages("mailbox.create")">
+        <br/>
+        
+    }
+
+    }
+
+    

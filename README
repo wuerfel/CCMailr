@@ -1,0 +1,68 @@
+===========================================================
+CCMailr - Submission by Patrick Thum for the Coding Contest
+http://coding-contest.de
+Category: Java II
+===========================================================
+
+CCMailr is an application for generating temporary mailaccounts like the 
+services mailinator.com or spamgourmet.com
+
+The application is based on the Play2.0 Framework. It connects to a
+Apache James 3.0beta4 Server and provides User-Management and Mailbox-Management.
+
+
+Frameworks/Librarys/Code/etc which were provided by others:
+- JBCrypt - a Java BCrypt implementation 
+   Copyright (c) 2006 Damien Miller
+   http://www.mindrot.org/projects/jBCrypt/
+
+- Play 2.0 Framework
+   http://www.playframework.org
+- 
+
+
+-------------
+Installation:
+-------------
+- Install Play 2.0 
+- Install H2 Database
+- Install and Configure the Apache James Mailserver
+- Configure the App
+
+- since there is no real HTTPS support in play 2.0 until now
+  you have to install and configure a reverse proxy as described in
+  http://www.playframework.org/documentation/2.0.1/HTTPServer
+  A nice guide to set up the reverse proxy correctly is described in
+  http://www.nczonline.net/blog/2012/08/08/setting-up-apache-as-a-ssl-front-end-for-play/
+  and a german tutorial for generating the server.key file and self-signed certificate server.crt
+  is available at http://www.schirmacher.de/display/INFO/Apache+SSL+Zertifikat+erstellen
+  
+
+
+--------------
+Configuration:
+--------------
+- if you build the project yourself from sources, change the app key  in /conf/application.conf 
+  by running 'play secret'
+  
+- configure your Database Server in the Database configuration section
+- set your preferred values in the Mailbox configuration section and the 
+  address of the James Server 
+- set the values for the admin account which will be created during first start
+
+Known Issue:
+- As mentioned in http://james.apache.org/server/3/install.html
+  Apache James Server 3.0beta4 won't start with JDK 7 (due to a Bug in JAXB)
+  Fix:
+  	- Download: http://jaxb.java.net/2.1.13/JAXB2_20100510.jar
+  	- Copy it into the conf/lib of James
+  	- Rename it to jaxb-impl.jar
+  	- You should then be able to start James  
+  	
+  	
+  	
+  	
+--------
+License:
+--------
+See LICENSE file for information about the license.

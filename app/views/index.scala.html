@@ -1,0 +1,10 @@
+@(message: String)
+@import tags._
+@import helper._
+@import helper.twitterBootstrap._
+
+
+@main(Messages("app.welcome")) {
+	@if(message=="HelloWorld"){@Messages("app.welcome")}
+    <span class="help-inline">@message</span>
+}

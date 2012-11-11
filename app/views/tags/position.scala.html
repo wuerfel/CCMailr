@@ -1,0 +1,26 @@
+@(pos: String)
+
+
+@pos match {
+    
+  case "header" => {
+	    @if(session().isEmpty()){
+	    <ul class="nav nav-pills">
+	    	<li><a href=@routes.Application.loginForm()>@Messages("link.login")</a></li>
+	    	<li><a href=@routes.Application.createUser()>@Messages("link.register")</a></li>
+	    	</ul>
+	    }else{ 
+	    <ul class="nav nav-pills">
+	    	<li><a href=@routes.UserHandler.editUser()>@Messages("link.edit")</a></li> 
+	    	<li><a href=@routes.BoxHandler.showBoxes()>@Messages("link.mb")</a></li>
+	    	<li><a href=@routes.Application.logout()>@Messages("link.logout")</a></li>
+	    	</ul>
+	    	}
+	    @if(session().containsKey("adm")){
+	    <ul class="nav nav-pills">
+	    	<li><a href=@routes.AdminHandler.showUsers()>@Messages("link.admin")</a></li>
+	    </ul>
+	    }	
+	    @session().get("connected")
+	  }
+  }

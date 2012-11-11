@@ -1,0 +1,40 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# Home page
+GET     /               controllers.Application.index()
+
+# Map static resources from the /public folder to the /assets URL path
+GET     /assets/*file               controllers.Assets.at(path="/public", file)
+
+# Application Management
+GET /login				controllers.Application.loginForm()
+POST /login				controllers.Application.loginProc() 
+GET /pwresend			controllers.Application.forgotPW()
+POST /pwresent			controllers.Application.pwResend()
+GET /logout				controllers.Application.logout()
+GET /register			controllers.Application.showForm()
+POST /register			controllers.Application.createUser()
+
+
+# Usermanagement
+GET /user/edit			controllers.UserHandler.showeditUser()
+POST /user/edit			controllers.UserHandler.editUser()
+
+
+
+# Mailbox-Management
+GET /mail				controllers.BoxHandler.showBoxes()
+GET /mail/add			controllers.BoxHandler.addBox()
+GET /mail/delete/:id	controllers.BoxHandler.deleteBox(id: Long )
+GET /mail/edit/:id		controllers.BoxHandler.showEditBox(id: Long )
+POST /mail/edit/:id		controllers.BoxHandler.editBox(id: Long )
+GET /mail/expiration/:id controllers.BoxHandler.expireBox(id: Long )
+
+# Admin Section
+GET /admin/user			controllers.AdminHandler.showUsers()
+GET /admin/promote/:id	controllers.AdminHandler.promoteUser(id: Long )
+GET /admin/user/delete/:id	controllers.AdminHandler.deleteUser(id: Long )
+POST /admin/addDomain	controllers.AdminHandler.addDomain()
+POST /admin/deleteDomain	controllers.AdminHandler.deleteDomain()

@@ -1,0 +1,16 @@
+@(msg: String, usrlgF: Form[Login])
+@import helper._
+@import helper.twitterBootstrap._
+
+@main(Messages("link.forgotpw")) {
+    
+
+    <h2>@Messages("link.forgotpw")</h2>
+    @msg
+    @form(routes.Application.pwResend()) {
+        @inputText(usrlgF("mail"),'_label ->Messages("user.mail")) 
+        <input type="submit" class="btn" value="@Messages("link.forgotpw")">
+        
+    }
+    
+}

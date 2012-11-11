@@ -1,0 +1,18 @@
+@(msg: String, usrlgF: Form[Login])
+@import helper._
+@import helper.twitterBootstrap._
+
+@main(Messages("frm.login")) {
+    
+
+    <h2>@Messages("frm.login")</h2>
+    @msg
+    @form(routes.Application.loginProc()) {
+        @inputText(usrlgF("mail"),'_label ->Messages("user.mail")) 
+        @inputPassword(usrlgF("pwd"),'_label ->Messages("user.pw")) 
+        <input type="submit" class="btn" value="@Messages("link.login")">
+        <br/> <br/><a href=@routes.Application.forgotPW()>@Messages("link.forgotpw")</a>
+        
+    }
+    
+}

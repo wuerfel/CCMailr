@@ -1,0 +1,19 @@
+@(msg: String, bId: Long, optlst: List[String],mboxEdF: Form[MbFrmDat])
+@import helper._
+@import helper.twitterBootstrap._
+
+@main(Messages("mailbox.edit")){
+    <h2>@Messages("mailbox.edit")</h2>
+    @msg   <br/>
+     @form(routes.BoxHandler.editBox(bId)) {
+        @inputText(mboxEdF("address"),'_label ->Messages("user.mail")) 
+        @select(mboxEdF("domain"), options(optlst), '_label ->Messages("mailbox.domain"))
+        @inputText(mboxEdF("duration"),'_label ->Messages("mailbox.duration")) 
+        <input type="submit" value="@Messages("mailbox.btnedit")">
+        <br/>
+        
+    }
+
+    }
+
+    

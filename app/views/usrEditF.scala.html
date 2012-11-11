@@ -1,0 +1,21 @@
+@(msg: String, usrAddF: Form[EditFrmDat])
+@import helper._
+@import helper.twitterBootstrap._
+
+@main(Messages("user.edit")) {
+    
+
+    <h2>@Messages("user.edit")</h2>
+    @msg
+    @form(routes.UserHandler.editUser()) {
+        @inputText(usrAddF("foreName"),'_label -> Messages("user.forename")) 
+        @inputText(usrAddF("surName"), '_label ->Messages("user.surname")) 
+        @inputText(usrAddF("mail"),'_label ->Messages("user.mail"),'readonly ->"true") 
+        @inputPassword(usrAddF("pw"),'_label ->Messages("user.pw")) 
+		@inputPassword(usrAddF("pwn1"),'_label ->Messages("user.pw1")) 
+        @inputPassword(usrAddF("pwn2"),'_label ->Messages("user.pw2")) 
+        <input type="submit" class="btn" value="@Messages("link.edit")">
+        
+    }
+    
+}

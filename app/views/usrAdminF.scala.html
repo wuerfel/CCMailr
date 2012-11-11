@@ -1,0 +1,47 @@
+
+@(msg: String, users: List[User], optlst: List[String],usrAddF: Form[User], domainF: Form[AdmFrmDat] )
+
+@import helper._
+@import helper.twitterBootstrap._
+
+@main("User Administration") {
+    <div>
+  <h1> Nutzer</h1>
+    <table class="table table-hover">
+    <tr>
+    	<th>@Messages("user.forename")</th><th>@Messages("user.surname")</th>
+    	<th> ID </th><th>@Messages("user.mail")</th>
+    	<th>Admin</th><th>@Messages("mailbox.delete")</th><th>@Messages("user.promote")</th>
+    </tr>
+    @for(usr <- users){
+    <tr>
+    	<td>@usr.getForename()</td>
+    	<td>@usr.getSurname()</td>
+    	<td>@usr.getId()</td>
+    	<td>@usr.getMail()</td>
+    	<td>@usr.isAdmin()</td>
+    	<td> @form(routes.AdminHandler.deleteUser(usr.getId())) {
+                    <input type="submit" class="btn" value="@Messages("mailbox.delete")">
+                }</td>
+        <td> @form(routes.AdminHandler.promoteUser(usr.getId())) {
+                 <input type="submit" class="btn" value="@Messages("user.promote")">
+        }</td>
+    </tr> } 
+    </table>
+</div>
+<div>
+<h2>@Messages("admin.domadm")</h2>
+@form(routes.AdminHandler.addDomain()){
+	@inputText(domainF("domain"),'_label ->Messages("mailbox.domain"))
+	<input type="submit" class="btn" value="@Messages("admin.domadd")">
+}
+
+@form(routes.AdminHandler.deleteDomain()) {
+		@select(domainF("domain"), options(optlst), '_label ->Messages("mailbox.domain"))
+        <input type="submit" class= "btn" value="@Messages("admin.domdel")">
+
+        
+    }
+        <br/>
+</div>    
+}
