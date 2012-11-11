@@ -55,6 +55,8 @@ public class BoxHandler extends Controller {
 
 				  MBox mb = new MBox();
 				  String mbName = filledForm.get().getAddress().toLowerCase();
+				  mbName=mbName.replaceAll("[^a-zA-Z0-9.]","");
+				  if(mbName.endsWith(".")){mbName=mbName.substring(0, mbName.length()-1);}
 				  mb.setDomain(filledForm.get().getDomain());
 				  mb.setAdress(mbName);
 				  mb.setExpired(false);
@@ -125,6 +127,8 @@ public static Result editBox(Long boxId){
 				  String fwd = mb.getUsr().getMail();
 			  
 				  if(!newLName.equals(oldLName)){
+					  newLName=newLName = newLName.replaceAll("[^a-zA-Z0-9.]","");
+					  if(newLName.endsWith(".")){newLName=newLName.substring(0, newLName.length()-1);}
 					  mb.setAdress( newLName );
 					  changes = true;
 				  }
