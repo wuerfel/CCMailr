@@ -29,7 +29,7 @@ public class BoxHandler extends Controller {
 	private static String host = Play.application().configuration().getString("jserv.host");
 	private static String port = Play.application().configuration().getString("jserv.port");
 	private static Jamesconn jmc = new Jamesconn(host, port);
-	static Form<MbFrmDat> boxFrm = form(MbFrmDat.class);
+	static Form<MbFrmDat> boxFrm = Form.form(MbFrmDat.class);
 	
 
 	/**

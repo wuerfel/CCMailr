@@ -7,7 +7,7 @@ import javassist.bytecode.Descriptor.Iterator;
 import models.Jamesconn;
 import models.MBox;
 import models.User;
-import akka.util.Duration;
+import scala.concurrent.duration.Duration;
 import play.*;
 import play.libs.Akka;
 import play.mvc.*;
@@ -48,7 +48,7 @@ public class Global extends GlobalSettings {
 
     
     
-    Akka.system().scheduler().schedule(Duration.create(0, TimeUnit.SECONDS),
+    Akka.system().scheduler().scheduleOnce(//Duration.create(10, TimeUnit.SECONDS),
     		  Duration.create(new Integer(mint), TimeUnit.MINUTES),
     		  new Runnable() {
     		    public void run() {
@@ -65,7 +65,7 @@ public class Global extends GlobalSettings {
     		      }
     		      
     		    }
-    		  }
+    		  }, Akka.system().dispatcher()
     		); 
     
   }  

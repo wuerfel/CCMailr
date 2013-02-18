@@ -30,9 +30,9 @@ import javax.mail.internet.MimeMessage;
 
 public class Application extends Controller {
 
-	static Form<Login> login = form(Login.class);
-	static Form<User> userForm = form(User.class);
-	static Form<EditFrmDat> registerForm = form(EditFrmDat.class);
+	static Form<Login> login = Form.form(Login.class);
+	static Form<User> userForm = Form.form(User.class);
+	static Form<EditFrmDat> registerForm = Form.form(EditFrmDat.class);
 	
 	
   public static Result index() {

@@ -26,8 +26,8 @@ public class AdminHandler extends Controller{
 	private static String host = Play.application().configuration().getString("jserv.host");
 	private static String port = Play.application().configuration().getString("jserv.port");
 	private static Jamesconn jmc = new Jamesconn(host, port);
-	static Form<User> userAdm = form(User.class);
-	static Form<AdmFrmDat> domainFrm = form(AdmFrmDat.class);
+	static Form<User> userAdm = Form.form(User.class);
+	static Form<AdmFrmDat> domainFrm = Form.form(AdmFrmDat.class);
 	//TODO ADMFRMDAT anpassen auf alle daten der Seite
 	  // ---------------------Functions for the Admin-Section ---------------------
 	  //TODO: implement some useful adminfunctions :)

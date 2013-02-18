@@ -2,8 +2,8 @@
 
 
 @pos match {
-    
-  case "header" => {
+   
+  case "header" => { 
 	    @if(session().isEmpty()){
 	    <ul class="nav nav-pills">
 	    	<li><a href=@routes.Application.loginForm()>@Messages("link.login")</a></li>
@@ -22,5 +22,6 @@
 	    </ul>
 	    }	
 	    @session().get("connected")
-	  }
+	  } 
   }
+ 

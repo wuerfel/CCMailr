@@ -19,7 +19,7 @@ import views.html.*;
 
 @Security.Authenticated(SecHandler.class)
 public class UserHandler extends Controller {
-	static Form<EditFrmDat> userForm = form(EditFrmDat.class);
+	static Form<EditFrmDat> userForm = Form.form(EditFrmDat.class);
   
 
   
@@ -63,7 +63,7 @@ public class UserHandler extends Controller {
   public static Result showeditUser(){	  
 	  Long id = new Long(session().get("connected"));
 	  User usr = User.getById(id);	
-	  Form<EditFrmDat> fillForm= form(EditFrmDat.class); 
+	  Form<EditFrmDat> fillForm= Form.form(EditFrmDat.class); 
 	  fillForm = fillForm.fill(EditFrmDat.prepopulate(usr));
 	  return ok(usrEditF.render("", fillForm));
   }
