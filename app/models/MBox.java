@@ -173,14 +173,14 @@ public class MBox extends Model{
 			
 			String min="";
 			if(dt.getMinuteOfHour()<10){
-				min = "0"+String.valueOf(dt.getMinuteOfHour());
+				min = "0" + String.valueOf(dt.getMinuteOfHour());
 			}
 			else{
 				min = String.valueOf(dt.getMinuteOfHour());
 			}
 		
-		return dt.getDayOfMonth()+"."+dt.getMonthOfYear()+"."+dt.getYear()+" "
-				+ dt.getHourOfDay()+":"+min;
+		return dt.getDayOfMonth() + "." + dt.getMonthOfYear() + "." + dt.getYear() + " "
+				+ dt.getHourOfDay() + ":" + min;
 		}
 	}
 	

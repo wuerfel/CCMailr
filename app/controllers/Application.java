@@ -54,26 +54,36 @@ public class Application extends Controller {
    * @return
    */
 public static Result createUser(){
+	
 	Form<EditFrmDat> filledForm = registerForm.bindFromRequest();
-	String msg = "";
 	EditFrmDat efd = filledForm.get();
-	efd.setPwn2("0");
+	String msg = "";
+	//next field isn't shown to the user->set to a default value to prevent form errors
+	efd.setPwn2("0");  
 	filledForm.fill(efd);
+	
 	if(filledForm.hasErrors()) {
 		msg = Messages.get("msg.formerr");
 		msg += filledForm.errors().toString();
 		return badRequest(usrAddF.render(msg, filledForm));
 		} 
-	else {
+	else { //form was filled correctly, go on!
+		
 		if( !User.mailExists( filledForm.get().getMail() ) ){
+			// a new user, check if the passwords are matching
+			
 			if(efd.getPw().equals( efd.getPwn1() )){
+			//create the user	
 			User.createUser(filledForm.get().getAsUser()); 
 			return ok(index.render(Messages.get("msg.regok")));
+			
 			} else {
+				//password mismatch
 				return badRequest(usrAddF.render(Messages.get("msg.formerr"), filledForm)); 
-				} 
+				
+			} 
 		  }
-		else{
+		else{ //mailadress already exists
 			msg=Messages.get("msg.mailex");
 			return badRequest(usrAddF.render(msg, filledForm));
 			}
@@ -106,25 +116,33 @@ public static Result createUser(){
    * @return the login form or the index page 
    */
   public static Result loginProc(){
+	  
 	  Form<Login> filledForm = login.bindFromRequest();
 	  String msg = Messages.get("msg.formerr");
 
 	  if( filledForm.hasErrors() ) {
-		  msg += filledForm.errors().toString();
+		  //some fields weren't filled
+		  	msg += filledForm.errors().toString();
 		    return badRequest( loginF.render(msg, filledForm) );
 		  } 
 	  else {
+		  
 		  Login l = filledForm.get();
+		  //get the user if authentication was correct
 		  User lgr = User.auth(l.getMail().toLowerCase(), l.getPwd());
-		  if( lgr != null ){
+		  
+		  if( lgr != null ){ //correct login
+			  //set the cookie
 			  session( "connected", String.valueOf( lgr.getId() ) );
 
-			  if( lgr.isAdmin() ){ 
+			  if( lgr.isAdmin() ){
+				  //also set an admin-flag if the account is an admin-account
 				  session( "adm", String.valueOf(true) ); 
 				  }
-			  //TODO: ADM-Zugriff per DB, nicht per Cookie
+			  //TODO: ADM-Zugriff per DB, nicht per Cookie?
 			  return ok( index.render( Messages.get("msg.login") ) ); 
 			  }
+		  //TODO maybe this should go into an else-path?
 		 msg = Messages.get("msg.formerr");
 	    return badRequest( loginF.render( msg, filledForm ) );  
 	  }
@@ -143,25 +161,31 @@ public static Result createUser(){
    * @return index page
    */
   public static Result pwResend(){
+	  
 	  Form<Login> filledForm = login.bindFromRequest();
 	  String msg = Messages.get("msg.formerr");
 	  Login l = filledForm.get();
+	  //next field isn't shown to the user->set to a default value to prevent form errors
 	  l.setPwd("sth");
 	  filledForm.fill(l);
 	  
 	  if( filledForm.hasErrors() ) {
+		  //some fields weren't filled
 		  msg += filledForm.errors().toString();
-		    return badRequest( forgotPw.render(msg, filledForm) );
+		  return badRequest( forgotPw.render(msg, filledForm) );
 		  } 
 	  else {
-
 		  User usr = User.getUsrByMail(l.getMail());
-		  if( usr != null ){
+		  if( usr != null ){ //mailadress was correct
+			  //generate a new pw and send it to the given mailadress
+			  //TODO [SEC]IMPORTANT! if sendMail() fails, we'll get an empty String (which will be set as PW)
 			  String newPw = sendMail(usr.getMail(), usr.getMail());
-			   usr.setPasswd(newPw);
-			   Ebean.update(usr);
+			  //set the new pw in the db
+			  usr.setPasswd(newPw);
+			  Ebean.update(usr);
 			  return ok( index.render( Messages.get("forgpw.succ") ) ); 
 			  }
+		  //TODO missing else
 		 msg = Messages.get("msg.formerr");
 	    return badRequest( forgotPw.render( msg, filledForm ) );  
 	  }
@@ -177,6 +201,8 @@ public static Result createUser(){
    */
   
  private static String sendMail(String mail, String forename){
+	 	  //standard-host of this application
+	 	  //TODO configurable sender-address?
 	 	  String host = Play.application().configuration().getString("fpw.host");
 	      String to = mail;
 	      String from = "admin@"+host;
@@ -184,16 +210,21 @@ public static Result createUser(){
 	      properties.setProperty("mail.smtp.host", host);
 	      Session session = Session.getDefaultInstance(properties);
 	      	
-	      try{
-	         MimeMessage message = new MimeMessage(session);
-	         message.setFrom(new InternetAddress(from));
-	         message.addRecipient(Message.RecipientType.TO,
-	                                  new InternetAddress(to));
-	         message.setSubject(Messages.get("forgpw.title"));
-	         String rueck = getRndPw();
-	         message.setText(Messages.get("forgpw.msg", forename, rueck ));
-	         Transport.send(message);
-	         return rueck;
+	      try{	
+	    	  //add the header-informations
+		         MimeMessage message = new MimeMessage(session);
+		         message.setFrom(new InternetAddress(from));
+		         message.addRecipient(Message.RecipientType.TO,
+		                                  new InternetAddress(to));
+		         message.setSubject(Messages.get("forgpw.title"));
+		         
+		      //add the message body
+		         String rueck = getRndPw();
+		         //TODO create a better message-text
+		         message.setText(Messages.get("forgpw.msg", forename, rueck ));
+		         Transport.send(message);
+		         return rueck;
+		         
 	      }catch (Exception e) {
 	         e.printStackTrace();
 	         return "";
@@ -202,13 +233,15 @@ public static Result createUser(){
  
  /**
   * generates a random password 
-  * @return a random password
+  * @return a random password with 7 characters
   */
+ //TODO modify this function, also use at least digits and uppercase-letters and a variable length 
  private static String getRndPw(){
 	  Random rand = new Random();
 	  StringBuffer strBuf = new StringBuffer();
+	  
 	  for (int i = 0 ; i < 7 ; i++ ) {
-		  //TODO Intervall anpassen
+		  //generates a random char between a and z (an ascii a is 97, z is 122 in dec)
 	  	strBuf.append( (char) ( (Math.abs( rand.nextInt() ) %26 ) +97 ) );
 	  }
 	  return strBuf.toString();

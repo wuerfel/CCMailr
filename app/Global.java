@@ -26,28 +26,32 @@ public class Global extends GlobalSettings {
 	private static Jamesconn jmc;
   @Override
   public void onStart(Application app) {
+	//read the configuration parameters from application.conf
 	final String host = Play.application().configuration().getString("jserv.host");
 	final String port = Play.application().configuration().getString("jserv.port");
 	final String mint = Play.application().configuration().getString("mbox.interval");
 	final String msize = Play.application().configuration().getString("mbox.size");
 	final String admMail = Play.application().configuration().getString("adm.mail");
  
+	//connect to the apache james-server
 	jmc = new Jamesconn(host, port);
     Logger.info("Application has started");
     User adm = User.getUsrByMail( admMail );
-    //create the adminaccount specified in the application.conf if not exists
+    //create the admin-account specified in the application.conf if not exists
     if( adm == null ){
+    	//read the fore- and surname and the passwd from application.conf
     	String admFName = Play.application().configuration().getString("adm.fname");
     	String admSName = Play.application().configuration().getString("adm.sname");
     	String admPw = Play.application().configuration().getString("adm.pw");
-    	
+
+    	//create the admin-account 
     	adm = new User(admFName, admSName, admMail, admPw);
   	  	adm.setAdmin(true);
   	  	User.createUser(adm);
     }
 
     
-    
+    //create the job that will expire the mailboxes
     Akka.system().scheduler().scheduleOnce(//Duration.create(10, TimeUnit.SECONDS),
     		  Duration.create(new Integer(mint), TimeUnit.MINUTES),
     		  new Runnable() {
@@ -72,6 +76,7 @@ public class Global extends GlobalSettings {
   
   @Override
   public void onStop(Application app) {
+	  //TODO stop all tasks and objects?
     Logger.info("Application shutdown...");
   } 
   

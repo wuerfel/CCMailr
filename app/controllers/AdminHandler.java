@@ -23,11 +23,13 @@ import views.html.usrAdminF;
  */
 @Security.Authenticated(SecHandler.class)
 public class AdminHandler extends Controller{
+	
 	private static String host = Play.application().configuration().getString("jserv.host");
 	private static String port = Play.application().configuration().getString("jserv.port");
 	private static Jamesconn jmc = new Jamesconn(host, port);
 	static Form<User> userAdm = Form.form(User.class);
 	static Form<AdmFrmDat> domainFrm = Form.form(AdmFrmDat.class);
+	
 	//TODO ADMFRMDAT anpassen auf alle daten der Seite
 	  // ---------------------Functions for the Admin-Section ---------------------
 	  //TODO: implement some useful adminfunctions :)
@@ -56,18 +58,33 @@ public class AdminHandler extends Controller{
 		  User.delete(id);
 		  return redirect(routes.AdminHandler.showUsers());
 	  }
+	
+	  /**
+	   * adds the given domain to the james-server
+	   * @return 
+	   */
 	  public static Result addDomain(){
+		  
+		  
 		  Form<AdmFrmDat> filledForm = domainFrm.bindFromRequest();
 		  AdmFrmDat afd = filledForm.get();		  
 		  jmc.addDomain( afd.getDomain() );
 		  List<String> lst = Arrays.asList( jmc.getDomainList() );
+		  
 		  return ok( usrAdminF.render(Messages.get("adm.domadded"), User.all(), lst, userAdm, domainFrm)  ); 
 	  }
+	  
+	  /**
+	   * deletes the selected domain
+	   * @return
+	   */
 	  public static Result deleteDomain(){
+		  
 		  Form<AdmFrmDat> filledForm = domainFrm.bindFromRequest();
 		  AdmFrmDat afd = filledForm.get();		  
 		  jmc.removeDomain( afd.getDomain() );
 		  List<String> lst = Arrays.asList( jmc.getDomainList() );
+		  
 		  return ok( usrAdminF.render(Messages.get("adm.domdeleted"), User.all(), lst, userAdm, domainFrm)  ); 
 	  }
 }

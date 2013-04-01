@@ -44,7 +44,7 @@ public class BoxHandler extends Controller {
 	  List<String> lst = Arrays.asList( jmc.getDomainList() );
 	  
 	  if( filledForm.hasErrors() ) {
-		  	//nicht alle Felder wurden ausgefuellt
+		  	//not all fields were filled
 		  	 msg = Messages.get("msg.formerr");
 		  	 msg += filledForm.errors().toString();
 		    return badRequest(mboxAddF.render(msg,MBox.allUser(id), lst,filledForm));
@@ -55,17 +55,29 @@ public class BoxHandler extends Controller {
 
 				  MBox mb = new MBox();
 				  String mbName = filledForm.get().getAddress().toLowerCase();
-				  mbName=mbName.replaceAll("[^a-zA-Z0-9.]","");
-				  if(mbName.endsWith(".")){mbName=mbName.substring(0, mbName.length()-1);}
-				  mb.setDomain(filledForm.get().getDomain());
-				  mb.setAdress(mbName);
-				  mb.setExpired(false);
-				  mb.setDomain(filledForm.get().getDomain().toLowerCase());
+				  // deletes all special characters 
+				  //TODO return an error-page if there are some special-chars in the address...
+				  mbName = mbName.replaceAll("[^a-zA-Z0-9.]","");
+				  // deletes a the dot if its placed at the end of the mailaddress
+				  //TODO return an error-page if there is a dot at the end
+				  //TODO there should be another mail-exists-check after all deletions.. 
+				  if( mbName.endsWith(".") ){ mbName = mbName.substring( 0, mbName.length()-1 ); }
+				  
+				  //set the data of the box
+				  //TODO check whether the next cmd is redundant, maybe it can be removed? 
+				  mb.setDomain( filledForm.get().getDomain() );
+				  mb.setAdress( mbName );
+				  mb.setExpired( false );
+				  //TODO check the existence of the new domainname
+				  mb.setDomain( filledForm.get().getDomain().toLowerCase() );
+				  
 				  Long ts = parseDuration( filledForm.get().getDuration() );
-				  if(ts==-1){
-					  msg =  Messages.get("msg.wrongf");
+				  
+				  if( ts == -1 ){ //show an error-page if the timestamp is faulty
+					  msg = Messages.get("msg.wrongf");
 					  return badRequest( mboxAddF.render(msg, MBox.allUser(id), lst, filledForm) );
 				  }
+				  // sets the activity-time of the mailbox
 				  mb.setTS_Active( ts );  
 				  
 				  mb.setUsr( User.getById(id) );
@@ -79,6 +91,7 @@ public class BoxHandler extends Controller {
 				  return redirect( routes.BoxHandler.showBoxes() );  
 				  } 
 			  else{
+				  //the mailbox already exists
 				  msg = Messages.get("msg.mailex");
 				  return badRequest( mboxAddF.render(msg, MBox.allUser(id), lst, filledForm) );
 			  }
@@ -91,10 +104,10 @@ public class BoxHandler extends Controller {
    * @return the Mailbox-Overviewpage
    */
   public static Result deleteBox(Long boxid){
-	  //deletes the Box from Mailserver
+	  //deletes the box from mailserver
 	  MBox mb = MBox.getById(boxid);
 	  jmc.deleteAllUserData(mb.getAdress(), mb.getDomain(), mb.getUsr().getMail());
-	  //deletes the Box from DB
+	  //deletes the box from DB
 	  MBox.delete( boxid );
 	 return redirect( routes.BoxHandler.showBoxes() );
   }
@@ -102,12 +115,13 @@ public class BoxHandler extends Controller {
 /**
  * Edits a Mailbox
  * @param boxId
- * @return
+ * @return error/success-page
  */
 public static Result editBox(Long boxId){
 	
 	  Form<MbFrmDat> filledForm = boxFrm.bindFromRequest();
 	  String msg = "";
+	  //lst = the domainlist
 	  List<String> lst = Arrays.asList(jmc.getDomainList());
 	  
 	  if(filledForm.hasErrors()) {
@@ -116,9 +130,13 @@ public static Result editBox(Long boxId){
 		  	 msg += filledForm.errors().toString();
 		    return badRequest( mboxEditF.render( msg, boxId, lst, filledForm ) );
 		  } 
-	  else {
+	  else { //the form was filled correctly
+		  
 			  if( !MBox.mailExists( filledForm.get().getAddress(), filledForm.get().getDomain(), boxId ) ){
+				  // the given mailbox exists
 				  boolean changes = false;
+				  //we get the boxID with the POST-Request
+				  //TODO check if the user who sends the POST equals to the owner of the box
 				  MBox mb = MBox.getById(boxId);
 				  String newLName = filledForm.get().getAddress().toLowerCase();
 				  String newDName = filledForm.get().getDomain().toLowerCase();
@@ -126,29 +144,40 @@ public static Result editBox(Long boxId){
 				  String oldDName = mb.getDomain();
 				  String fwd = mb.getUsr().getMail();
 			  
-				  if(!newLName.equals(oldLName)){
-					  newLName=newLName = newLName.replaceAll("[^a-zA-Z0-9.]","");
+				  if(!newLName.equals(oldLName)){ //a new localname was chosen
+
+					  //TODO return an error-page if there are some special-chars in the address...
+					  // deletes a the dot if its placed at the end of the mailaddress
+					  //TODO return an error-page if there is a dot at the end
+					  //TODO there should be another mail-exists-check after all deletions.. 
+					  newLName = newLName.replaceAll("[^a-zA-Z0-9.]","");
 					  if(newLName.endsWith(".")){newLName=newLName.substring(0, newLName.length()-1);}
 					  mb.setAdress( newLName );
 					  changes = true;
 				  }
-				  if(!newDName.equals(oldDName)){
+				  
+				  if(!newDName.equals(oldDName)){ //a new domainname was chosen
+					  //TODO check the existence of the new domainname
 					  mb.setDomain(newDName);
 					  changes = true;
 				  }
+				  
 				  Long ts = parseDuration( filledForm.get().getDuration() );
-				  if(ts==-1){
+				  if( ts == -1 ){ // a faulty timestamp was given -> return an errorpage
 					  msg =  Messages.get("msg.wrongf");
 					  return badRequest( mboxEditF.render( msg, boxId, lst, filledForm ) );
 				  }
-				  if(!(mb.getTS_Active() == ts)){
+				  
+				  if( !(mb.getTS_Active() == ts) ){
+					  //check if the MBox-TS is unequal to the given TS in the form
 					  mb.setTS_Active( ts );  
 					  changes = true;
 				  }
 
-				  //Updates the Boxes if changes were made
+				  //Updates the Box if changes were made
 				  if(changes){
 					  mb.setExpired(false);
+					  //TODO consider a failure in both update-processes
 					  MBox.updateMBox( mb );
 					  jmc.editBox(oldLName, oldDName, newLName, newDName, fwd);
 				  }
@@ -156,7 +185,7 @@ public static Result editBox(Long boxId){
 				  return redirect( routes.BoxHandler.showBoxes() );  
 				  } 
 			  else{ 
-				  // mailexists was false
+				  // mailexists-check was false
 				  msg =  Messages.get("msg.mailex");
 				  return badRequest( mboxEditF.render( msg, boxId, lst, filledForm ) );
 			  }
@@ -191,8 +220,8 @@ public static Result showEditBox(Long boxId){
 	  Long id = new Long( session().get("connected") );
 	  MbFrmDat mbdat = new MbFrmDat();
 	  mbdat.setAddress( getRndName() );
-	  //TODO nullpointerexception wenn server nicht laeuft
-	  List<String> lst=Arrays.asList(jmc.getDomainList());
+	  //TODO nullpointerexception if the james-server is unavailable
+	  List<String> lst = Arrays.asList(jmc.getDomainList());
 	  mbdat.setDuration( "5h" );
 	  boxFrm = boxFrm.fill( mbdat );
 
@@ -204,10 +233,11 @@ public static Result showEditBox(Long boxId){
    * @return a random name
    */ 
   private static String getRndName(){
+	  //TODO modify this function, also use at least digits and uppercase-letters and a variable length 
 	  Random rand = new Random();
 	  StringBuffer strBuf = new StringBuffer();
 	  for (int i = 0 ; i < 7 ; i++ ) {
-		  //TODO Intervall anpassen
+		//generates a random char between a and z (an ascii a is 97, z is 122 in dec)
 	  	strBuf.append( (char) ( (Math.abs( rand.nextInt() ) %26 ) +97 ) );
 	  }
 	  return strBuf.toString();
@@ -224,7 +254,7 @@ public static Result showEditBox(Long boxId){
 	  //checks whether its valid or invalid at the DB
 	  MBox mb = MBox.getById(id);
 	  DateTime dt = new DateTime();
-	  if(!(mb.getTS_Active()==0)&&(mb.getTS_Active()< dt.getMillis())){
+	  if( !(mb.getTS_Active() == 0) && (mb.getTS_Active() < dt.getMillis()) ){
 		  //if the validity period is over return the Edit page
 		  return redirect(routes.BoxHandler.showEditBox(id));
 	  }
@@ -245,8 +275,8 @@ public static Result showEditBox(Long boxId){
 	  if( parseHelp2(s) >= 0 ){
 	  //checks if the string is in the right format
 	  // there should be 1 or 2 values (d,h or h,d or h or d or 0)
-		  String[] str=s.split(",");
-		  String helper="";
+		  String[] str = s.split(",");
+		  String helper = "";
 		  
 	  	  for(int i = 0; i < str.length; i++){
 				  str[i] = str[i].toLowerCase();
@@ -259,11 +289,11 @@ public static Result showEditBox(Long boxId){
 					  h = parseHelp(helper);
 				  }
 			  }
-			  if((d==-1) || (h==-1)){
+			  if( (d == -1) || (h == -1) ){
 				  return -1;
 			  }
 			  s = s.trim();
-			  if(s.equals("0")){
+			  if( s.equals("0") ){
 				  return 0;
 			  }
 		  }
@@ -278,7 +308,7 @@ public static Result showEditBox(Long boxId){
 		  d += h/24;
 		  h = h % 24;
 	  }
-	  if( ( d > 30 ) || ( ( d == 30 ) && (h >= 0)) ){
+	  if( ( d > 30 ) || ( ( d == 30 ) && (h >= 0) ) ){
 		  //max 30days allowed, higher means unlimited
 		  return 0;
 	  }
@@ -295,8 +325,8 @@ public static Result showEditBox(Long boxId){
    * 		if the string does not match
    */
   private static int parseHelp(String helper){
-	  helper=helper.trim();
-	  if(helper.matches("[0-9]+")){
+	  helper = helper.trim();
+	  if( helper.matches("[0-9]+") ){
 		  return Integer.parseInt(helper);
 		  
 	  }
@@ -311,8 +341,8 @@ public static Result showEditBox(Long boxId){
    * @return
    */
   private static int parseHelp2(String helper){
-	  helper=helper.trim();
-	  if(helper.matches("[\\d+][d|h][,][\\d][d|h]") || helper.matches("[\\d+][d|h]") || helper.matches("[0]")){
+	  helper = helper.trim();
+	  if( helper.matches("[\\d+][d|h][,][\\d][d|h]") || helper.matches("[\\d+][d|h]") || helper.matches("[0]") ){
 		  return 0;
 		  
 	  }
@@ -324,7 +354,7 @@ public static Result showEditBox(Long boxId){
 	private static String parseTime(Long milis){
 		DateTime dt = new DateTime();
 		float times = (milis - dt.getMillis()) / 3600000.0f; //in hours
-		if(milis == 0){
+		if( milis == 0 ){
 			//the box is "unlimited"
 			return "0";
 			}
@@ -337,7 +367,7 @@ public static Result showEditBox(Long boxId){
 		int days = hours / 24;
 		hours = hours % 24;
 		
-		return hours+"h,"+days+"d";
+		return hours + "h," + days + "d";
 	}
 }
 

@@ -31,9 +31,9 @@ public class Jamesconn {
     public Jamesconn()  {
     	try{
     		
-    	dlist= new ObjectName("org.apache.james:type=component,name=domainlist");
-    	users= new ObjectName("org.apache.james:type=component,name=usersrepository");
-    	rcprw= new ObjectName("org.apache.james:type=component,name=recipientrewritetable");
+    	dlist = new ObjectName("org.apache.james:type=component,name=domainlist");
+    	users = new ObjectName("org.apache.james:type=component,name=usersrepository");
+    	rcprw = new ObjectName("org.apache.james:type=component,name=recipientrewritetable");
     	String serviceURL = "service:jmx:rmi:///jndi/rmi://localhost:9999/jmxrmi";
     	url = new JMXServiceURL(serviceURL);
     	jmxc = JMXConnectorFactory.connect(url, null);
@@ -45,10 +45,10 @@ public class Jamesconn {
     }
     public Jamesconn(String jhost, String jport)  {
     	try{
-    		jhost=jhost.trim(); jport = jport.trim();
-    	dlist= new ObjectName("org.apache.james:type=component,name=domainlist");
-    	users= new ObjectName("org.apache.james:type=component,name=usersrepository");
-    	rcprw= new ObjectName("org.apache.james:type=component,name=recipientrewritetable");
+    		jhost = jhost.trim(); jport = jport.trim();
+    	dlist = new ObjectName("org.apache.james:type=component,name=domainlist");
+    	users = new ObjectName("org.apache.james:type=component,name=usersrepository");
+    	rcprw = new ObjectName("org.apache.james:type=component,name=recipientrewritetable");
     	String serviceURL = "service:jmx:rmi:///jndi/rmi://"+jhost+":"+jport+"/jmxrmi";
     	url = new JMXServiceURL(serviceURL);
     	jmxc = JMXConnectorFactory.connect(url, null);
@@ -102,8 +102,8 @@ public class Jamesconn {
     //adds the specified Name to the Domainlist
     public void addDomain(String dName){
     	try {
-    	String[] param= {dName};
-    	String[] sig= {strClass};
+    	String[] param = {dName};
+    	String[] sig = {strClass};
     	
 			mbsc.invoke(dlist, "addDomain", param, sig);
 		} catch (Exception e) {
